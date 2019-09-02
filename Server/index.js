@@ -4,6 +4,7 @@ const passport = require("passport");
 const mongoose = require("mongoose");
 const keys = require("./config/keys");
 var auth = require("./routes/authRoutes");
+var api = require("./routes/apiRoutes");
 require("./models/User");
 require("./services/passport");
 
@@ -24,15 +25,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", auth);
-
-app.get("/api/current_user", (req, res) => {
-  res.send(req.user);
-});
-
-app.get("/api/logout", (req, res) => {
-  req.logout();
-  res.send(req.user);
-});
+app.use("/api", api);
 
 app.listen(PORT);
 console.log("Listening to port " + PORT + "!");
