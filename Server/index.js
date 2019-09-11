@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const keys = require("./config/keys");
 var auth = require("./routes/authRoutes");
 var api = require("./routes/apiRoutes");
+const bodyParser = require("body-parser");
 require("./models/User");
 require("./services/passport");
 
@@ -13,6 +14,8 @@ console.log("Connected to mongoose database!");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
+
+app.use(bodyParser.json());
 
 app.use(
   cookieSession({
