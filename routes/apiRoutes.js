@@ -5,18 +5,16 @@ const keys = require("../config/keys");
 const requireLogin = require("../middlewares/requireLogin");
 const stripe = require("stripe")(keys.stripeSecretKey);
 
-router.use(requireLogin);
-
 router.get("/current_user", (req, res) => {
   res.send(req.user);
 });
 
-router.get("/logout", (req, res) => {
+router.get("/logout", requireLogin, (req, res) => {
   req.logout();
   res.redirect("/");
 });
 
-router.post("/stripe", async (req, res) => {
+router.post("/stripe", requireLogin, async (req, res) => {
   const charge = await stripe.charges.create({
     amount: 500,
     currency: "usd",
