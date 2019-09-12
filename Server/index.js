@@ -30,5 +30,19 @@ app.use(passport.session());
 app.use("/auth", auth);
 app.use("/api", api);
 
+if (process.env.NODE_ENV == "production") {
+  // ORDER MATTERS
+  // express will serve up production assets
+  // i.e. main.js
+  app.use(express.static("client/build"));
+
+  // express will serve up index.html file
+  // if it doesn't recognize the route
+  const path = require("path");
+  app.get("*", (req, res) => {
+    res.sendfile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
+
 app.listen(PORT);
 console.log("Listening to port " + PORT + "!");
