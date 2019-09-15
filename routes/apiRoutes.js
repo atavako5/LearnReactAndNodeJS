@@ -3,6 +3,7 @@ const express = require("express");
 var router = express.Router();
 const keys = require("../config/keys");
 const requireLogin = require("../middlewares/requireLogin");
+const survey = require("./surveyRoutes");
 const stripe = require("stripe")(keys.stripeSecretKey);
 
 router.get("/current_user", (req, res) => {
@@ -27,5 +28,7 @@ router.post("/stripe", requireLogin, async (req, res) => {
 
   res.send(user);
 });
+
+router.use("/surveys", requireLogin, survey);
 
 module.exports = router;

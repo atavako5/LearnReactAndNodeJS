@@ -3,11 +3,12 @@ const cookieSession = require("cookie-session");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const keys = require("./config/keys");
+require("./models/User");
+require("./models/Surveys");
+require("./services/passport");
 var auth = require("./routes/authRoutes");
 var api = require("./routes/apiRoutes");
 const bodyParser = require("body-parser");
-require("./models/User");
-require("./services/passport");
 
 mongoose.connect(keys.mongoURI, { useNewUrlParser: true });
 console.log("Connected to mongoose database!");
