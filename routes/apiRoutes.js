@@ -29,6 +29,6 @@ router.post("/stripe", requireLogin, async (req, res) => {
   res.send(user);
 });
 
-router.use("/surveys", requireLogin, survey);
+router.use("/surveys", survey);
 
 module.exports = router;

@@ -5,11 +5,53 @@ var router = express.Router();
 const Mailer = require("../services/Mailer");
 const Survey = mongoose.model("surveys");
 const surveyTemplate = require("../services/emailTemplates/surveyTemplate");
+const requireLogin = require("../middlewares/requireLogin");
+const _ = require("lodash");
+const Path = require("path-parser").default;
+const { URL } = require("url");
 
-router.get("/thanks", (req, res) => {
+router.get("/", requireLogin, async (req, res) => {
+  const surveys = await Survey.find({ _user: req.user.id }).select({
+    recipients: false
+  });
+
+  res.send(surveys);
+});
+
+router.get("/:surveyId/:choice", (req, res) => {
   res.send("Thanks for voting!");
 });
-router.post("/", requireCredits, async (req, res) => {
+
+router.post("/webhooks", (req, res) => {
+  const p = new Path("/api/surveys/:surveyId/:choice");
+  _.chain(req.body)
+    .map(({ email, url }) => {
+      const match = p.test(new URL(url).pathname);
+      if (match) {
+        return { email, surveyId: match.surveyId, choice: match.choice };
+      }
+    })
+    .compact()
+    .uniqBy("email", "surveyId")
+    .each(({ surveyId, email, choice }) => {
+      Survey.updateOne(
+        {
+          _id: surveyId,
+          recipients: {
+            $elemMatch: { email: email, responded: false }
+          }
+        },
+        {
+          $inc: { [choice]: 1 },
+          $set: { "recipients.$.responded": true }
+        }
+      ).exec();
+    })
+    .value();
+  res.send({});
+});
+
+router.post("/", requireLogin, requireCredits, async (req, res) => {
   const { title, subject, body, recipients } = req.body;
   const survey = new Survey({
     title,
